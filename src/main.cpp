@@ -173,6 +173,8 @@ int main() {
 
     // load models
     // -----------
+
+    stbi_set_flip_vertically_on_load(false);
     Model ourModel("resources/objects/field/model.obj");
     ourModel.SetShaderTextureNamePrefix("material.");
 
@@ -251,8 +253,8 @@ int main() {
         ourModel.Draw(ourShader);
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, programState->backpackPosition);
-        model = glm::scale(model, glm::vec3(programState->backpackScale));
+        model = glm::translate(model, glm::vec3(0.0f, -3.8f, 12.0f));
+        model = glm::scale(model, glm::vec3(0.4f));
         ourShader.setMat4("model", model);
         tractorModel.Draw(ourShader);
 
