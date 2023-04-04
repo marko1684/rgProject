@@ -176,6 +176,9 @@ int main() {
     Model ourModel("resources/objects/field/model.obj");
     ourModel.SetShaderTextureNamePrefix("material.");
 
+    Model tractorModel("resources/objects/tractor/Tractor_with_hydraulic_lifter_retopo2_SF.obj");
+    tractorModel.SetShaderTextureNamePrefix("material.");
+
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
     pointLight.ambient = glm::vec3(0.1, 0.1, 0.1);
@@ -190,7 +193,7 @@ int main() {
 
     dirLight.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
     dirLight.ambient = glm::vec3(0.05f, 0.05f, 0.05f);
-    dirLight.diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
+    dirLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     dirLight.specular = glm::vec3(0.5f, 0.5f, 0.5f);
 
     // draw in wireframe
@@ -247,6 +250,12 @@ int main() {
         ourShader.setMat4("model", model);
         ourModel.Draw(ourShader);
 
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, programState->backpackPosition);
+        model = glm::scale(model, glm::vec3(programState->backpackScale));
+        ourShader.setMat4("model", model);
+        tractorModel.Draw(ourShader);
+
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
 
@@ -283,6 +292,10 @@ void processInput(GLFWwindow *window) {
         programState->camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         programState->camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        programState->camera.ProcessKeyboard(UP, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+        programState->camera.ProcessKeyboard(DOWN, deltaTime);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
