@@ -1,0 +1,25 @@
+# Blender MTL File: 'None'
+# Material Count: 2
+
+newmtl New_holland_T7_Tractor
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Bump New_holland_T7_Tractor_normal.jpg
+map_Kd New_holland_T7_Tractor.jpg
+
+newmtl Windows
+Ns 900.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.102476 0.102476 0.102476
+Ks 0.127615 0.127615 0.127615
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd New_holland_T7_Tractor.jpg

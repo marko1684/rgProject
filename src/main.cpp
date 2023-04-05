@@ -167,11 +167,9 @@ int main() {
 
     // configure global opengl state
     // -----------------------------
-    glEnable(GL_DEPTH_TEST);
-
     // build and compile shaders
     // -------------------------
-    Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
+    Shader ourShader("resources/shaders/model_lighting.vs", "resources/shaders/model_lighting.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
 
     // skybox vertices
@@ -234,12 +232,12 @@ int main() {
 
     // load sky block textures
     std::vector<std::string> faces{
-            "resources/textures/skybox/posx.jpg",
-            "resources/textures/skybox/negx.jpg",
-            "resources/textures/skybox/posy.jpg",
-            "resources/textures/skybox/negy.jpg",
-            "resources/textures/skybox/posz.jpg",
-            "resources/textures/skybox/negz.jpg"
+            "resources/textures/skybox/right.jpg",
+            "resources/textures/skybox/left.jpg",
+            "resources/textures/skybox/bottom.jpg",
+            "resources/textures/skybox/top.jpg",
+            "resources/textures/skybox/front.jpg",
+            "resources/textures/skybox/back.jpg"
     };
 
     unsigned int cubemapTexture = loadCubemap(faces);
@@ -252,6 +250,9 @@ int main() {
 
     Model tractorModel("resources/objects/tractor/Tractor_with_hydraulic_lifter_retopo2_SF.obj");
     tractorModel.SetShaderTextureNamePrefix("material.");
+
+    Model tractor2Model("resources/objects/tractor2/New_holland_T7_Tractor_SF.obj");
+    tractor2Model.SetShaderTextureNamePrefix("material.");
 
     Model cowModel("resources/objects/cow/cow.obj");
     cowModel.SetShaderTextureNamePrefix("material.");
@@ -278,7 +279,7 @@ int main() {
 
     // draw in wireframe
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+    glEnable(GL_DEPTH_TEST);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window)) {
@@ -298,30 +299,15 @@ int main() {
         glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //depth mask
-        glDepthMask(GL_FALSE);
-        glDepthFunc(GL_LEQUAL);
-        skyboxShader.use();
-        skyboxShader.setInt("skybox", 0);
-        // view/projection transformations
+
+        ourShader.use();
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
                                                 (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = programState->camera.GetViewMatrix();
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
-        skyboxShader.setMat4("view", glm::mat4(glm::mat3(view)));
-        skyboxShader.setMat4("projection", projection);
-        glBindVertexArray(skyboxVAO);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        glDepthMask(GL_TRUE);
-        glDepthFunc(GL_LESS);
-
         // don't forget to enable shader before setting uniforms
-        ourShader.use();
         pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
         ourShader.setVec3("pointLight.position", pointLight.position);
         ourShader.setVec3("pointLight.ambient", pointLight.ambient);
@@ -345,10 +331,17 @@ int main() {
         ourModel.Draw(ourShader);
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -3.8f, 12.0f));
+        model = glm::translate(model, glm::vec3(0.0f, -3.6f,12.0f));
         model = glm::scale(model, glm::vec3(0.4f));
         ourShader.setMat4("model", model);
         tractorModel.Draw(ourShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(9.0f, -3.6f, 12.0f));
+        model = glm::scale(model, glm::vec3(1.0f));
+        ourShader.setMat4("model", model);
+        tractor2Model.Draw(ourShader);
+
 
         std::vector<glm::vec3> cowPositions = {
                 glm::vec3(-10.0f, -3.8f, 0.0f),
@@ -371,6 +364,21 @@ int main() {
         ourShader.setMat4("model", model);
         windmillModel.Draw(ourShader);
 
+        glDepthFunc(GL_LEQUAL);
+        skyboxShader.use();
+        skyboxShader.setInt("skybox", 0);
+        // view/projection transformations
+
+
+        skyboxShader.setMat4("view", glm::mat4(glm::mat3(view)));
+        skyboxShader.setMat4("projection", projection);
+        glBindVertexArray(skyboxVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        //glDepthMask(GL_TRUE);
+        glDepthFunc(GL_LESS);
 
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
