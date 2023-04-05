@@ -175,6 +175,7 @@ int main() {
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
 
     // skybox vertices
+    stbi_set_flip_vertically_on_load(false);
 
     float skyboxVertices[] = {
             // positions
@@ -233,12 +234,12 @@ int main() {
 
     // load sky block textures
     std::vector<std::string> faces{
-            "resources/textures/skybox/right.png",
-            "resources/textures/skybox/left.png",
-            "resources/textures/skybox/top.png",
-            "resources/textures/skybox/bottom.png",
-            "resources/textures/skybox/front.png",
-            "resources/textures/skybox/back.png"
+            "resources/textures/skybox/posx.jpg",
+            "resources/textures/skybox/negx.jpg",
+            "resources/textures/skybox/posy.jpg",
+            "resources/textures/skybox/negy.jpg",
+            "resources/textures/skybox/posz.jpg",
+            "resources/textures/skybox/negz.jpg"
     };
 
     unsigned int cubemapTexture = loadCubemap(faces);
@@ -246,7 +247,6 @@ int main() {
     // load models
     // -----------
 
-    stbi_set_flip_vertically_on_load(false);
     Model ourModel("resources/objects/field/model.obj");
     ourModel.SetShaderTextureNamePrefix("material.");
 
@@ -298,6 +298,7 @@ int main() {
         glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        //depth mask
         glDepthMask(GL_FALSE);
         glDepthFunc(GL_LEQUAL);
         skyboxShader.use();
@@ -522,4 +523,32 @@ unsigned int loadCubemap(std::vector<std::string>& faces){
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     return textureID;
+
+
+//    unsigned int textureID;
+//    glGenTextures(1, &textureID);
+//    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+//
+//    int width, height, nrChannels;
+//    for (unsigned int i = 0; i < faces.size(); i++)
+//    {
+//        unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+//        if (data)
+//        {
+//            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+//            stbi_image_free(data);
+//        }
+//        else
+//        {
+//            std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+//            stbi_image_free(data);
+//        }
+//    }
+//    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+//
+//    return textureID;
 }
