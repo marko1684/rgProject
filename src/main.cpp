@@ -181,6 +181,9 @@ int main() {
     Model tractorModel("resources/objects/tractor/Tractor_with_hydraulic_lifter_retopo2_SF.obj");
     tractorModel.SetShaderTextureNamePrefix("material.");
 
+    Model cowModel("resources/objects/cow/cow.obj");
+    cowModel.SetShaderTextureNamePrefix("material.");
+
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
     pointLight.ambient = glm::vec3(0.1, 0.1, 0.1);
@@ -257,6 +260,21 @@ int main() {
         model = glm::scale(model, glm::vec3(0.4f));
         ourShader.setMat4("model", model);
         tractorModel.Draw(ourShader);
+
+        std::vector<glm::vec3> cowPositions = {
+                glm::vec3(-10.0f, -3.8f, 0.0f),
+                glm::vec3(-15.0f, -3.8f, -14.0f)
+        };
+
+        for(int i = 0; i < 2; i++){
+            model = glm::mat4(1.0f);
+            model = glm::rotate(model, glm::radians(35.0f * float(i)), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::translate(model, cowPositions[i]);
+            model = glm::scale(model, glm::vec3(0.2f));
+            ourShader.setMat4("model", model);
+            cowModel.Draw(ourShader);
+        }
+
 
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
