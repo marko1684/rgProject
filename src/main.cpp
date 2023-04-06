@@ -13,6 +13,7 @@
 #include <learnopengl/shader.h>
 #include <learnopengl/camera.h>
 #include <learnopengl/model.h>
+#include <math.h>
 
 #include <iostream>
 
@@ -260,6 +261,15 @@ int main() {
     Model windmillModel("resources/objects/windmill/model.obj");
     windmillModel.SetShaderTextureNamePrefix("material.");
 
+    Model houseModel("resources/objects/house/model.obj");
+    houseModel.SetShaderTextureNamePrefix("material.");
+
+    Model windmillMovModel("resources/objects/windmill_mov/windmill.obj");
+    windmillMovModel.SetShaderTextureNamePrefix("material.");
+
+    Model windmillStatModel("resources/objects/windmill_stat/windmill.obj");
+    windmillStatModel.SetShaderTextureNamePrefix("material.");
+
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
     pointLight.ambient = glm::vec3(0.1, 0.1, 0.1);
@@ -273,7 +283,7 @@ int main() {
     DirLight dirLight;
 
     dirLight.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
-    dirLight.ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+    dirLight.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
     dirLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     dirLight.specular = glm::vec3(0.5f, 0.5f, 0.5f);
 
@@ -282,14 +292,31 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     // render loop
     // -----------
+    double prevTime = 0.0;
+    double currTime = 0.0;
+    double timeDiff;
+    unsigned int counter = 0;
+
     while (!glfwWindowShouldClose(window)) {
+
+        currTime = glfwGetTime();
+        timeDiff = currTime - prevTime;
+        counter++;
+        if(timeDiff >= 1.0 / 30.0){
+            std::string FPS = std::to_string(1.0 / timeDiff * counter);
+            std::string ms = std::to_string((timeDiff / counter) * 1000);
+            std::string newTitle = FPS + " - FPS / " + ms + " - ms";
+            glfwSetWindowTitle(window, newTitle.c_str());
+            prevTime = currTime;
+            counter = 0;
+        }
+
         // per-frame time logic
         // --------------------
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // input
         // -----
         processInput(window);
 
@@ -299,6 +326,7 @@ int main() {
         glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glEnable(GL_CULL_FACE);
 
         ourShader.use();
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
@@ -342,6 +370,13 @@ int main() {
         ourShader.setMat4("model", model);
         tractor2Model.Draw(ourShader);
 
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-39.0f, -3.8f, 26.0f));
+        //model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.5f));
+        ourShader.setMat4("model", model);
+        houseModel.Draw(ourShader);
+
 
         std::vector<glm::vec3> cowPositions = {
                 glm::vec3(-10.0f, -3.8f, 0.0f),
@@ -363,6 +398,23 @@ int main() {
         model = glm::scale(model, glm::vec3(0.5f));
         ourShader.setMat4("model", model);
         windmillModel.Draw(ourShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 2.2f, 0.0f));
+        model = glm::rotate(model, glm::radians(-10.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians((float)glfwGetTime()*10), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(1.0f));
+        ourShader.setMat4("model", model);
+        windmillMovModel.Draw(ourShader);
+
+        model = glm::mat4(1.0f);
+        //model = glm::rotate(model, glm::radians((float)glfwGetTime()*5), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::translate(model, glm::vec3(-0.1f, -4.7f, -2.6f));
+        model = glm::scale(model, glm::vec3(1.0f));
+        ourShader.setMat4("model", model);
+        windmillStatModel.Draw(ourShader);
+
 
         glDepthFunc(GL_LEQUAL);
         skyboxShader.use();
