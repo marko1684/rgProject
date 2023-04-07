@@ -270,6 +270,9 @@ int main() {
     Model windmillStatModel("resources/objects/windmill_stat/windmill.obj");
     windmillStatModel.SetShaderTextureNamePrefix("material.");
 
+    Model sunflowerModel("resources/objects/sunflower/sunflower.obj");
+    sunflowerModel.SetShaderTextureNamePrefix("material.");
+
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
     pointLight.ambient = glm::vec3(0.1, 0.1, 0.1);
@@ -282,7 +285,7 @@ int main() {
 
     DirLight dirLight;
 
-    dirLight.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+    dirLight.direction = glm::vec3(0.7f, 0.7f, -0.14f);
     dirLight.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
     dirLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     dirLight.specular = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -371,7 +374,7 @@ int main() {
         tractor2Model.Draw(ourShader);
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-39.0f, -3.8f, 26.0f));
+        model = glm::translate(model, glm::vec3(-39.0f, -5.8f, 26.0f));
         //model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::scale(model, glm::vec3(0.5f));
         ourShader.setMat4("model", model);
@@ -414,6 +417,19 @@ int main() {
         model = glm::scale(model, glm::vec3(1.0f));
         ourShader.setMat4("model", model);
         windmillStatModel.Draw(ourShader);
+
+        glm::vec3 positionOfSunflower = glm::vec3(-29.0f, -4.2f, -9.0f);
+        float zOfSunflowerRow = 0.0f;
+        for(int i = 0; i < 7; i++){
+            for(int j = 0; j < 30; j++){
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, positionOfSunflower + glm::vec3(float(j) * 1.5f, 0.0f, zOfSunflowerRow));
+                model = glm::scale(model, glm::vec3(0.02f));
+                ourShader.setMat4("model", model);
+                sunflowerModel.Draw(ourShader);
+            }
+            zOfSunflowerRow -= 2.5f;
+        }
 
 
         glDepthFunc(GL_LEQUAL);
