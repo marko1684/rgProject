@@ -181,47 +181,86 @@ int main() {
 
     float skyboxVertices[] = {
             // positions
-            -1.0f,  1.0f, -1.0f,
-            -1.0f, -1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f,
-            1.0f,  1.0f, -1.0f,
-            -1.0f,  1.0f, -1.0f,
+            // color rgb(100%, 64.7%, 0%)
+            -1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
+            -1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
+            -1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
 
-            -1.0f, -1.0f,  1.0f,
-            -1.0f, -1.0f, -1.0f,
-            -1.0f,  1.0f, -1.0f,
-            -1.0f,  1.0f, -1.0f,
-            -1.0f,  1.0f,  1.0f,
-            -1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
+            -1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
+            -1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
+            -1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
+            -1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
+            -1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
 
-            1.0f, -1.0f, -1.0f,
-            1.0f, -1.0f,  1.0f,
-            1.0f,  1.0f,  1.0f,
-            1.0f,  1.0f,  1.0f,
-            1.0f,  1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f,
+            1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
 
-            -1.0f, -1.0f,  1.0f,
-            -1.0f,  1.0f,  1.0f,
-            1.0f,  1.0f,  1.0f,
-            1.0f,  1.0f,  1.0f,
-            1.0f, -1.0f,  1.0f,
-            -1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
+            -1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
+            -1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
 
-            -1.0f,  1.0f, -1.0f,
-            1.0f,  1.0f, -1.0f,
-            1.0f,  1.0f,  1.0f,
-            1.0f,  1.0f,  1.0f,
-            -1.0f,  1.0f,  1.0f,
-            -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
+            -1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
+            -1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
 
-            -1.0f, -1.0f, -1.0f,
-            -1.0f, -1.0f,  1.0f,
-            1.0f, -1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f,
-            -1.0f, -1.0f,  1.0f,
-            1.0f, -1.0f,  1.0f
+            -1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
+            -1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
+            -1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
+            1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f
+    };
+
+    float lCubeVertices[] = {
+            // Front Face
+            -2.5f, -2.5f,  2.5f,  // Bottom Left
+            2.5f, -2.5f,  2.5f,  // Bottom Right
+            2.5f,  2.5f,  2.5f,  // Top Right
+            -2.5f,  2.5f,  2.5f,  // Top Left
+
+            // Back Face
+            -2.5f, -2.5f, -2.5f,  // Bottom Right
+            2.5f, -2.5f, -2.5f,  // Bottom Left
+            2.5f,  2.5f, -2.5f,  // Top Left
+            -2.5f,  2.5f, -2.5f,  // Top Right
+
+            // Top Face
+            -2.5f,  2.5f,  2.5f,  // Top Left
+            2.5f,  2.5f,  2.5f,  // Top Right
+            2.5f,  2.5f, -2.5f,  // Bottom Right
+            -2.5f,  2.5f, -2.5f,  // Bottom Left
+
+            // Bottom Face
+            -2.5f, -2.5f,  2.5f,  // Top Left
+            2.5f, -2.5f,  2.5f,  // Top Right
+            2.5f, -2.5f, -2.5f,  // Bottom Right
+            -2.5f, -2.5f, -2.5f,  // Bottom Left
+
+            // Right Face
+            2.5f, -2.5f,  2.5f,  // Bottom Left
+            2.5f, -2.5f, -2.5f,  // Bottom Right
+            2.5f,  2.5f, -2.5f,  // Top Right
+            2.5f,  2.5f,  2.5f,  // Top Left
+
+            // Left Face
+            -2.5f, -2.5f,  2.5f,  // Bottom Right
+            -2.5f, -2.5f, -2.5f,  // Bottom Left
+            -2.5f,  2.5f, -2.5f,  // Top Left
+            -2.5f,  2.5f,  2.5f   // Top Right
     };
 
     glEnable(GL_MULTISAMPLE);
@@ -234,6 +273,16 @@ int main() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+
+//    unsigned int lCubeVAO, lCubeVBO;
+//    glGenVertexArrays(1, &lCubeVAO);
+//    glGenBuffers(1, &lCubeVBO);
+//    glBindVertexArray(lCubeVAO);
+//    glBindBuffer(GL_ARRAY_BUFFER, lCubeVBO);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(lCubeVertices), &lCubeVertices, GL_STATIC_DRAW);
+//    glEnableVertexAttribArray(1);
+//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
+//    glVertex
 
     // load sky block textures
     std::vector<std::string> faces{
@@ -278,7 +327,7 @@ int main() {
     sunflowerModel.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
-    pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
+    pointLight.position = glm::vec3(0.0f, 4.0, 12.0);
     pointLight.ambient = glm::vec3(0.1, 0.1, 0.1);
     pointLight.diffuse = glm::vec3(0.6, 0.6, 0.6);
     pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
@@ -343,7 +392,7 @@ int main() {
         ourShader.setMat4("view", view);
 
         // don't forget to enable shader before setting uniforms
-        pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
+        // pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
         ourShader.setVec3("pointLight.position", pointLight.position);
         ourShader.setVec3("pointLight.ambient", pointLight.ambient);
         ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
@@ -577,19 +626,20 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 }
 
 
-unsigned int loadCubemap(std::vector<std::string>& faces){
+unsigned int loadCubemap(std::vector<std::string>& faces) {
     unsigned int textureID;
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
     int width, height, nrChannels;
-    unsigned char* data;
+    unsigned char *data;
 
-    for(int i = 0; i < faces.size(); i++){
+    for (int i = 0; i < faces.size(); i++) {
         data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-        if(data){
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        }else{
+        if (data) {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE,
+                         data);
+        } else {
             std::cerr << "Failed to load cube map texture face\n";
             return -1;
         }
@@ -603,32 +653,4 @@ unsigned int loadCubemap(std::vector<std::string>& faces){
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     return textureID;
-
-
-//    unsigned int textureID;
-//    glGenTextures(1, &textureID);
-//    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-//
-//    int width, height, nrChannels;
-//    for (unsigned int i = 0; i < faces.size(); i++)
-//    {
-//        unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-//        if (data)
-//        {
-//            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-//            stbi_image_free(data);
-//        }
-//        else
-//        {
-//            std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
-//            stbi_image_free(data);
-//        }
-//    }
-//    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-//
-//    return textureID;
 }
