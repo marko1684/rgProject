@@ -29,6 +29,8 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 
 unsigned int loadCubemap(std::vector<std::string>& faces);
 
+unsigned int loadTexture(char const * path);
+
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -189,7 +191,7 @@ int main() {
     // -------------------------
     Shader ourShader("resources/shaders/model_lighting.vs", "resources/shaders/model_lighting.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
-
+    Shader blendingShader("resources/shaders/blendShader.vs", "resources/shaders/blendShader.fs");
     // skybox vertices
     stbi_set_flip_vertically_on_load(false);
 
@@ -237,42 +239,16 @@ int main() {
             -1.0f, -1.0f,  1.0f,
             1.0f, -1.0f,  1.0f,
     };
-    float lCubeVertices[] = {
-            // Front Face
-            -2.5f, -2.5f,  2.5f,  // Bottom Left
-            2.5f, -2.5f,  2.5f,  // Bottom Right
-            2.5f,  2.5f,  2.5f,  // Top Right
-            -2.5f,  2.5f,  2.5f,  // Top Left
 
-            // Back Face
-            -2.5f, -2.5f, -2.5f,  // Bottom Right
-            2.5f, -2.5f, -2.5f,  // Bottom Left
-            2.5f,  2.5f, -2.5f,  // Top Left
-            -2.5f,  2.5f, -2.5f,  // Top Right
+    float grassVertices[] = {
+            // positions         // texture Coords
+            0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+            0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
+            1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
 
-            // Top Face
-            -2.5f,  2.5f,  2.5f,  // Top Left
-            2.5f,  2.5f,  2.5f,  // Top Right
-            2.5f,  2.5f, -2.5f,  // Bottom Right
-            -2.5f,  2.5f, -2.5f,  // Bottom Left
-
-            // Bottom Face
-            -2.5f, -2.5f,  2.5f,  // Top Left
-            2.5f, -2.5f,  2.5f,  // Top Right
-            2.5f, -2.5f, -2.5f,  // Bottom Right
-            -2.5f, -2.5f, -2.5f,  // Bottom Left
-
-            // Right Face
-            2.5f, -2.5f,  2.5f,  // Bottom Left
-            2.5f, -2.5f, -2.5f,  // Bottom Right
-            2.5f,  2.5f, -2.5f,  // Top Right
-            2.5f,  2.5f,  2.5f,  // Top Left
-
-            // Left Face
-            -2.5f, -2.5f,  2.5f,  // Bottom Right
-            -2.5f, -2.5f, -2.5f,  // Bottom Left
-            -2.5f,  2.5f, -2.5f,  // Top Left
-            -2.5f,  2.5f,  2.5f   // Top Right
+            0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+            1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+            1.0f,  0.5f,  0.0f,  1.0f,  0.0f
     };
 
     glEnable(GL_MULTISAMPLE);
@@ -286,15 +262,19 @@ int main() {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
 
-//    unsigned int lCubeVAO, lCubeVBO;
-//    glGenVertexArrays(1, &lCubeVAO);
-//    glGenBuffers(1, &lCubeVBO);
-//    glBindVertexArray(lCubeVAO);
-//    glBindBuffer(GL_ARRAY_BUFFER, lCubeVBO);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(lCubeVertices), &lCubeVertices, GL_STATIC_DRAW);
-//    glEnableVertexAttribArray(1);
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
-//    glVertex
+    unsigned int grassVAO, grassVBO;
+    glGenVertexArrays(1, &grassVAO);
+    glGenBuffers(1, &grassVBO);
+    glBindVertexArray(grassVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, grassVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(grassVertices), grassVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glBindVertexArray(0);
+
+    unsigned int grassTexture = loadTexture(FileSystem::getPath("resources/textures/grass/grass.png").c_str());
 
     // load sky block textures
     std::vector<std::string> faces{
@@ -365,6 +345,15 @@ int main() {
     double timeDiff;
     unsigned int counter = 0;
 
+    glm::vec3 grassPositions[] = {
+            glm::vec3(5.0f, -3.1f, 12.0f),
+            glm::vec3(10.0f, -3.1f, 5.0f),
+            glm::vec3(-15.0f, -3.1f, 14.0f),
+            glm::vec3(-5.0f, -3.1f, -14.0f),
+            glm::vec3(-7.0f, -3.1f, 11.0f),
+            glm::vec3(-19.0f, -3.1f, -1.0f)
+    };
+
     while (!glfwWindowShouldClose(window)) {
 
         currTime = glfwGetTime();
@@ -394,12 +383,48 @@ int main() {
         glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        blendingShader.use();
+        blendingShader.setInt("texture1", 0);
+
+        blendingShader.setVec3("pointLight.position", 10.1f, -1.87f, 17.3f);
+        blendingShader.setVec3("pointLight.ambient", pointLight.ambient);
+        blendingShader.setVec3("pointLight.diffuse", pointLight.diffuse);
+        blendingShader.setVec3("pointLight.specular", pointLight.specular);
+        blendingShader.setFloat("pointLight.constant", 0.45f);
+        blendingShader.setFloat("pointLight.linear", 0.85f);
+        blendingShader.setFloat("pointLight.quadratic", 0.032f);
+        blendingShader.setVec3("viewPosition", programState->camera.Position);
+
+        blendingShader.setVec3("dirLight.direction", -0.2f, -1.0f, 0.3f);
+        blendingShader.setVec3("dirLight.ambient", 0.01f, 0.01f, 0.01f);
+        blendingShader.setVec3("dirLight.diffuse", 0.2f, 0.2f, 0.2f);
+        blendingShader.setVec3("dirLight.specular", 0.3f, 0.3f, 0.3f);
+        
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = programState->camera.GetViewMatrix();
+        blendingShader.setMat4("projection", projection);
+        blendingShader.setMat4("view", view);
+        glBindVertexArray(grassVAO);
+        glBindTexture(GL_TEXTURE_2D, grassTexture);
+
+        for (auto i : grassPositions)
+        {
+            float grassAngle = 0.0f;
+            for(int j = 0; j < 6; j++) {
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, i);
+                model = glm::rotate(model, glm::radians(grassAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+                model = glm::translate(model, glm::vec3(-0.5f, 0.0f, 0.0f));
+                blendingShader.setMat4("model", model);
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+                grassAngle += 30.0f;
+            }
+        }
+
         glEnable(GL_CULL_FACE);
 
         ourShader.use();
-        glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
-                                                (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = programState->camera.GetViewMatrix();
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
@@ -461,7 +486,7 @@ int main() {
         ourShader.setFloat("spotLight2.outerCutOff", glm::cos(glm::radians(21.0f)));
 
         // render the loaded model
-        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::mat4(1.0f);
         model = glm::translate(model,glm::vec3(0.0f,0.0f,0.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(1.0f));    // it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
@@ -538,6 +563,8 @@ int main() {
         }
 
 
+
+
         glDepthFunc(GL_LEQUAL);
         skyboxShader.use();
         skyboxShader.setInt("skybox", 0);
@@ -563,6 +590,7 @@ int main() {
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
+        glDisable(GL_CULL_FACE);
     }
 
     programState->SaveToFile("resources/program_state.txt");
@@ -572,6 +600,8 @@ int main() {
     ImGui::DestroyContext();
     glDeleteVertexArrays(1, &skyboxVAO);
     glDeleteBuffers(1, &skyboxVAO);
+    glDeleteVertexArrays(1, &grassVAO);
+    glDeleteBuffers(1, &grassVAO);
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
@@ -676,6 +706,43 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
     }
+}
+
+unsigned int loadTexture(char const * path)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrComponents;
+    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else
+    {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
+
+    return textureID;
 }
 
 
