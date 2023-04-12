@@ -56,6 +56,20 @@ struct PointLight {
 
 struct DirLight {
     glm::vec3 direction;
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+};
+
+struct SpotLight{
+    glm::vec3 position;
+    glm::vec3 direction;
+    float cutOff;
+    float outerCutOff;
+
+    float constant;
+    float linear;
+    float quadratic;
 
     glm::vec3 ambient;
     glm::vec3 diffuse;
@@ -179,60 +193,13 @@ int main() {
     // skybox vertices
     stbi_set_flip_vertically_on_load(false);
 
-//    float skyboxVertices[] = {
-//            // positions
-//            // color rgb(100%, 64.7%, 0%)
-//            -1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//            -1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//            -1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//
-//            -1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//            -1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//            -1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//            -1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//            -1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//            -1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//
-//            1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//
-//            -1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//            -1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//            -1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//
-//            -1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//            -1.0f,  1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//            -1.0f,  1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//
-//            -1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//            -1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f, -1.0f, -1.0f, 1.0f, 0.647f, 0.0f,
-//            -1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f,
-//            1.0f, -1.0f,  1.0f, 1.0f, 0.647f, 0.0f
-//    };
-
     float skyboxVertices[] = {
             // positions
-            // color rgb(100%, 64.7%, 0%)
             -1.0f,  1.0f, -1.0f,
             -1.0f, -1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f,
-            1.0f,  1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f,  1.0f, -1.0f,
             -1.0f,  1.0f, -1.0f,
 
             -1.0f, -1.0f,  1.0f,
@@ -436,21 +403,62 @@ int main() {
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
+        PointLight pointLight1, pointLight2;
+
         // don't forget to enable shader before setting uniforms
         // pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
-        ourShader.setVec3("pointLight.position", pointLight.position);
-        ourShader.setVec3("pointLight.ambient", pointLight.ambient);
-        ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
-        ourShader.setVec3("pointLight.specular", pointLight.specular);
-        ourShader.setFloat("pointLight.constant", pointLight.constant);
-        ourShader.setFloat("pointLight.linear", pointLight.linear);
-        ourShader.setFloat("pointLight.quadratic", pointLight.quadratic);
+        ourShader.setVec3("pointLight1.position", 10.1f, -1.87f, 17.3f);
+        ourShader.setVec3("pointLight1.ambient", pointLight.ambient);
+        ourShader.setVec3("pointLight1.diffuse", pointLight.diffuse);
+        ourShader.setVec3("pointLight1.specular", pointLight.specular);
+        ourShader.setFloat("pointLight1.constant", 0.45f);
+        ourShader.setFloat("pointLight1.linear", 0.85f);
+        ourShader.setFloat("pointLight1.quadratic", 0.032f);
         ourShader.setVec3("viewPosition", programState->camera.Position);
-        ourShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-        ourShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-        ourShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-        ourShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+
+        ourShader.setVec3("pointLight2.position", 9.6f, -1.87f, 17.3f);
+        ourShader.setVec3("pointLight2.ambient", pointLight.ambient);
+        ourShader.setVec3("pointLight2.diffuse", pointLight.diffuse);
+        ourShader.setVec3("pointLight2.specular", pointLight.specular);
+        ourShader.setFloat("pointLight2.constant", 0.45f);
+        ourShader.setFloat("pointLight2.linear", 0.85f);
+        ourShader.setFloat("pointLight2.quadratic", 0.032f);
+        ourShader.setVec3("viewPosition", programState->camera.Position);
+
+        ourShader.setVec3("dirLight.direction", -0.2f, -1.0f, 0.3f);
+        ourShader.setVec3("dirLight.ambient", 0.01f, 0.01f, 0.01f);
+        ourShader.setVec3("dirLight.diffuse", 0.2f, 0.2f, 0.2f);
+        ourShader.setVec3("dirLight.specular", 0.3f, 0.3f, 0.3f);
         ourShader.setFloat("material.shininess", 32.0f);
+
+
+        SpotLight spotLight1;
+        SpotLight spotLight2;
+//        SpotLight spotLight3;
+//        SpotLight spotLight4;
+
+
+        ourShader.setVec3("spotLight1.position", 9.9f, -2.3f, 14.5f);
+        ourShader.setVec3("spotLight1.direction", 0.0f, -0.07f, 1.0f);
+        ourShader.setVec3("spotLight1.ambient", 0.0f, 0.0f, 0.0f);
+        ourShader.setVec3("spotLight1.diffuse", 1.0f, 1.0f, 1.0f);
+        ourShader.setVec3("spotLight1.specular", 1.0f, 1.0f, 1.0f);
+        ourShader.setFloat("spotLight1.constant", 1.0f);
+        ourShader.setFloat("spotLight1.linear", 0.09);
+        ourShader.setFloat("spotLight1.quadratic", 0.032);
+        ourShader.setFloat("spotLight1.cutOff", glm::cos(glm::radians(19.875f)));
+        ourShader.setFloat("spotLight1.outerCutOff", glm::cos(glm::radians(21.0f)));
+
+        ourShader.setVec3("spotLight2.position", 9.5f, -2.3f, 14.5f);
+        ourShader.setVec3("spotLight2.direction", 0.0f, -0.07f, 1.0f);
+        ourShader.setVec3("spotLight2.ambient", 0.0f, 0.0f, 0.0f);
+        ourShader.setVec3("spotLight2.diffuse", 1.0f, 1.0f, 1.0f);
+        ourShader.setVec3("spotLight2.specular", 1.0f, 1.0f, 1.0f);
+        ourShader.setFloat("spotLight2.constant", 1.0f);
+        ourShader.setFloat("spotLight2.linear", 0.09);
+        ourShader.setFloat("spotLight2.quadratic", 0.032);
+        ourShader.setFloat("spotLight2.cutOff", glm::cos(glm::radians(19.875f)));
+        ourShader.setFloat("spotLight2.outerCutOff", glm::cos(glm::radians(21.0f)));
 
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
@@ -636,7 +644,7 @@ void DrawImGui(ProgramState *programState) {
         ImGui::SliderFloat("Float slider", &f, 0.0, 1.0);
         ImGui::ColorEdit3("Background color", (float *) &programState->clearColor);
         ImGui::DragFloat3("Backpack position", (float*)&programState->backpackPosition);
-        ImGui::DragFloat("Backpack scale", &programState->backpackScale, 0.05, 0.1, 4.0);
+        ImGui::DragFloat("Backpack scale", &programState->backpackScale, 0.025, -100.0, 100.0);
 
         ImGui::DragFloat("pointLight.constant", &programState->pointLight.constant, 0.05, 0.0, 1.0);
         ImGui::DragFloat("pointLight.linear", &programState->pointLight.linear, 0.05, 0.0, 1.0);
