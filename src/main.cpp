@@ -274,7 +274,7 @@ int main() {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glBindVertexArray(0);
 
-    unsigned int grassTexture = loadTexture(FileSystem::getPath("resources/textures/grass/grass.png").c_str());
+    unsigned int grassTexture = loadTexture(FileSystem::getPath("resources/textures/grass/grass-min.png").c_str());
 
     // load sky block textures
     std::vector<std::string> faces{
@@ -318,6 +318,9 @@ int main() {
     Model sunflowerModel("resources/objects/sunflower/sunflower.obj");
     sunflowerModel.SetShaderTextureNamePrefix("material.");
 
+    Model ledModel("resources/objects/LED/LED_E.obj");
+    ledModel.SetShaderTextureNamePrefix("material.");
+
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(0.0f, 4.0, 12.0);
     pointLight.ambient = glm::vec3(0.1, 0.1, 0.1);
@@ -354,6 +357,8 @@ int main() {
             glm::vec3(-19.0f, -3.1f, -1.0f)
     };
 
+    float rotAngle = 0.0f;
+
     while (!glfwWindowShouldClose(window)) {
 
         currTime = glfwGetTime();
@@ -385,15 +390,16 @@ int main() {
 
         blendingShader.use();
         blendingShader.setInt("texture1", 0);
+        PointLight rotPointLight;
 
-        blendingShader.setVec3("pointLight.position", 10.1f, -1.87f, 17.3f);
-        blendingShader.setVec3("pointLight.ambient", pointLight.ambient);
-        blendingShader.setVec3("pointLight.diffuse", pointLight.diffuse);
-        blendingShader.setVec3("pointLight.specular", pointLight.specular);
-        blendingShader.setFloat("pointLight.constant", 0.45f);
-        blendingShader.setFloat("pointLight.linear", 0.85f);
-        blendingShader.setFloat("pointLight.quadratic", 0.032f);
-        blendingShader.setVec3("viewPosition", programState->camera.Position);
+        ourShader.setVec3("pointLight.position", 9.1f, 0.0f, 14.0f);
+        ourShader.setVec3("pointLight.ambient", 0.1f, 0.1f, 0.1f);
+        ourShader.setVec3("pointLight.diffuse", 1.0f, 0.6f, 0.0f);
+        ourShader.setVec3("pointLight.specular", 1.0f, 0.6f, 0.0f);
+        ourShader.setFloat("pointLight.constant", 0.2f);
+        ourShader.setFloat("pointLight.linear", 0.9f);
+        ourShader.setFloat("pointLight.quadratic", 0.032f);
+        ourShader.setVec3("viewPosition", programState->camera.Position);
 
         blendingShader.setVec3("dirLight.direction", -0.2f, -1.0f, 0.3f);
         blendingShader.setVec3("dirLight.ambient", 0.01f, 0.01f, 0.01f);
@@ -432,6 +438,31 @@ int main() {
 
         // don't forget to enable shader before setting uniforms
         // pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
+
+        ourShader.setVec3("rotPointLight.position", 9.1f, -0.22f, 14.0f);
+        ourShader.setVec3("rotPointLight.direction", glm::vec3(0.0f, 0.0f, 1.0f));
+        ourShader.setVec3("rotPointLight.ambient", 0.1f, 0.1f, 0.1f);
+        ourShader.setVec3("rotPointLight.diffuse", 1.0f, 0.6f, 0.0f);
+        ourShader.setVec3("rotPointLight.specular", 1.0f, 0.6f, 0.0f);
+        ourShader.setFloat("rotPointLight.constant", 0.1f);
+        ourShader.setFloat("rotPointLight.linear", 0.9f);
+        ourShader.setFloat("rotPointLight.quadratic", 0.032f);
+        ourShader.setFloat("rotPointLight.cutOff", glm::cos(glm::radians(0.0f)));
+        ourShader.setFloat("rotPointLight.outerCutOff", glm::cos(glm::radians(rotAngle)));
+        ourShader.setVec3("viewPosition", programState->camera.Position);
+
+        ourShader.setVec3("rotPointLight1.position", 9.1f, -0.22f, 14.0f);
+        ourShader.setVec3("rotPointLight1.direction", glm::vec3(0.0f, 0.0f, -1.0f));
+        ourShader.setVec3("rotPointLight1.ambient", 0.1f, 0.1f, 0.1f);
+        ourShader.setVec3("rotPointLight1.diffuse", 1.0f, 0.6f, 0.0f);
+        ourShader.setVec3("rotPointLight1.specular", 1.0f, 0.6f, 0.0f);
+        ourShader.setFloat("rotPointLight1.constant", 0.1f);
+        ourShader.setFloat("rotPointLight1.linear", 0.9f);
+        ourShader.setFloat("rotPointLight1.quadratic", 0.032f);
+        ourShader.setFloat("rotPointLight1.cutOff", glm::cos(glm::radians(0.0f)));
+        ourShader.setFloat("rotPointLight1.outerCutOff", glm::cos(glm::radians(180.0f + rotAngle)));
+        ourShader.setVec3("viewPosition", programState->camera.Position);
+
         ourShader.setVec3("pointLight1.position", 10.1f, -1.87f, 17.3f);
         ourShader.setVec3("pointLight1.ambient", pointLight.ambient);
         ourShader.setVec3("pointLight1.diffuse", pointLight.diffuse);
@@ -511,6 +542,17 @@ int main() {
         ourShader.setMat4("model", model);
         houseModel.Draw(ourShader);
 
+        glDisable(GL_CULL_FACE);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(9.1f, -0.42f, 14.0f));
+        model = glm::rotate(model, glm::radians(float(rotAngle)), glm::vec3(0.0f, 1.0f, 0.0f));
+        rotAngle += 15.0f;
+        model = glm::scale(model, glm::vec3(0.1f));
+        ourShader.setMat4("model", model);
+        ledModel.Draw(ourShader);
+
+        glEnable(GL_CULL_FACE);
 
         std::vector<glm::vec3> cowPositions = {
                 glm::vec3(-10.0f, -3.8f, 0.0f),

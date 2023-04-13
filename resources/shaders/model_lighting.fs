@@ -56,6 +56,8 @@ in vec3 FragPos;
 
 uniform PointLight pointLight1;
 uniform PointLight pointLight2;
+uniform SpotLight rotPointLight;
+uniform SpotLight rotPointLight1;
 uniform Material material;
 
 uniform vec3 viewPosition;
@@ -131,8 +133,11 @@ void main()
     vec3 viewDir = normalize(viewPosition - FragPos);
     vec3 result = CalcPointLight(pointLight1, normal, FragPos, viewDir);
     result += CalcPointLight(pointLight2, normal, FragPos, viewDir);
+    result += calcSpotLight(rotPointLight, normal, FragPos, viewDir);
+    result += calcSpotLight(rotPointLight1, normal, FragPos, viewDir);
     result += calcDirectionalLight(dirLight, normal, viewDir);
     result += calcSpotLight(spotLight1, normal, FragPos, viewDir);
     result += calcSpotLight(spotLight2, normal, FragPos, viewDir);
+
     FragColor = vec4(result, 1.0);
 }
