@@ -32,8 +32,8 @@ unsigned int loadCubemap(std::vector<std::string>& faces);
 unsigned int loadTexture(char const * path);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1280;
+const unsigned int SCR_HEIGHT = 960;
 
 // camera
 
@@ -341,8 +341,8 @@ int main() {
     // load models
     // -----------
 
-    Model ourModel("resources/objects/field/model.obj");
-    ourModel.SetShaderTextureNamePrefix("material.");
+    Model fieldModel("resources/objects/field/polje.obj");
+    fieldModel.SetShaderTextureNamePrefix("material.");
 
     Model tractorModel("resources/objects/tractor/Tractor_with_hydraulic_lifter_retopo2_SF.obj");
     tractorModel.SetShaderTextureNamePrefix("material.");
@@ -399,12 +399,12 @@ int main() {
     unsigned int counter = 0;
 
     glm::vec3 grassPositions[] = {
-            glm::vec3(5.0f, -3.1f, 12.0f),
-            glm::vec3(10.0f, -3.1f, 5.0f),
             glm::vec3(-15.0f, -3.1f, 14.0f),
-            glm::vec3(-5.0f, -3.1f, -14.0f),
-            glm::vec3(-7.0f, -3.1f, 11.0f),
-            glm::vec3(-19.0f, -3.1f, -1.0f)
+            glm::vec3(-26.0f, -3.1f, 11.0f),
+            glm::vec3(-18.0f, -3.1f, 1.45f),
+            glm::vec3(-12.0f, -3.1f, 22.0f),
+            glm::vec3(-25.0f, -3.1f, 32.0f),
+            glm::vec3(-38.0f, -3.1f, 23.0f)
     };
 
     float rotAngle = 0.0f;
@@ -478,7 +478,7 @@ int main() {
                 grassAngle += 30.0f;
             }
         }
-
+        glBindVertexArray(0);
         glEnable(GL_CULL_FACE);
 
         ourShader.use();
@@ -540,8 +540,6 @@ int main() {
 
         SpotLight spotLight1;
         SpotLight spotLight2;
-//        SpotLight spotLight3;
-//        SpotLight spotLight4;
 
 
         ourShader.setVec3("spotLight1.position", 9.9f, -2.3f, 14.5f);
@@ -590,9 +588,10 @@ int main() {
         // render the loaded model
         model = glm::mat4(1.0f);
         model = glm::translate(model,glm::vec3(0.0f,0.0f,0.0f)); // translate it down so it's at the center of the scene
+        model = glm::rotate(model, glm::radians(4.675f), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::scale(model, glm::vec3(1.0f));    // it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
-        ourModel.Draw(ourShader);
+        fieldModel.Draw(ourShader);
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -3.6f,12.0f));
@@ -607,8 +606,8 @@ int main() {
         tractor2Model.Draw(ourShader);
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-39.0f, -5.8f, 26.0f));
-        //model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(-29.0f, -6.3f, 26.0f));
+        model = glm::rotate(model, glm::radians(-0.4f), glm::vec3(1.0f, 0.0f, 0.0f));
         model = glm::scale(model, glm::vec3(0.5f));
         ourShader.setMat4("model", model);
         houseModel.Draw(ourShader);
@@ -626,14 +625,14 @@ int main() {
         glEnable(GL_CULL_FACE);
 
         std::vector<glm::vec3> cowPositions = {
-                glm::vec3(-10.0f, -3.8f, 0.0f),
-                glm::vec3(-15.0f, -3.8f, -14.0f)
+                glm::vec3(-12.0f, -3.56f, 8.1f),
+                glm::vec3(-22.0f, -3.7f, 12.0f)
         };
 
-        for(int i = 0; i < 2; i++){
+        for(int i = 0; i < cowPositions.size(); i++){
             model = glm::mat4(1.0f);
             model = glm::translate(model, cowPositions[i]);
-            model = glm::rotate(model, glm::radians(35.0f * float(i)), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(95.0f * float(i)), glm::vec3(0.0f, 1.0f, 0.0f));
             model = glm::scale(model, glm::vec3(0.2f));
             ourShader.setMat4("model", model);
             cowModel.Draw(ourShader);
@@ -647,25 +646,26 @@ int main() {
         windmillModel.Draw(ourShader);
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 2.2f, 0.0f));
-        model = glm::rotate(model, glm::radians(-10.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(-27.225f, 2.425f, 3.725f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(-7.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         model = glm::rotate(model, glm::radians((float)glfwGetTime()*10), glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         model = glm::scale(model, glm::vec3(1.0f));
         ourShader.setMat4("model", model);
         windmillMovModel.Draw(ourShader);
 
         model = glm::mat4(1.0f);
         //model = glm::rotate(model, glm::radians((float)glfwGetTime()*5), glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::translate(model, glm::vec3(-0.1f, -4.7f, -2.6f));
+        model = glm::translate(model, glm::vec3(-30.0f, -4.6f, 4.0f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::scale(model, glm::vec3(1.0f));
         ourShader.setMat4("model", model);
         windmillStatModel.Draw(ourShader);
 
         glm::vec3 positionOfSunflower = glm::vec3(-29.0f, -4.2f, -9.0f);
         float zOfSunflowerRow = 0.0f;
-        for(int i = 0; i < 7; i++){
-            for(int j = 0; j < 30; j++){
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 45; j++){
                 model = glm::mat4(1.0f);
                 model = glm::translate(model, positionOfSunflower + glm::vec3(float(j) * 1.5f, 0.0f, zOfSunflowerRow));
                 model = glm::scale(model, glm::vec3(0.02f));
@@ -701,10 +701,11 @@ int main() {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, colorBuffer);
         hdrShader.setInt("hdr", bHdr);
-        hdrShader.setFloat("exposure", programState->backpackScale);
+        hdrShader.setFloat("exposure", 0.2);
         glBindVertexArray(quadVAO);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glBindVertexArray(0);
+
 
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
@@ -727,6 +728,8 @@ int main() {
     glDeleteBuffers(1, &skyboxVAO);
     glDeleteVertexArrays(1, &grassVAO);
     glDeleteBuffers(1, &grassVAO);
+    glDeleteVertexArrays(1, &quadVAO);
+    glDeleteBuffers(1, &quadVAO);
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
@@ -806,7 +809,7 @@ void DrawImGui(ProgramState *programState) {
         ImGui::Text("Hello text");
         ImGui::SliderFloat("Float slider", &f, 0.0, 1.0);
         ImGui::ColorEdit3("Background color", (float *) &programState->clearColor);
-        ImGui::DragFloat3("Backpack position", (float*)&programState->backpackPosition);
+        ImGui::DragFloat3("Backpack position", (float*)&programState->backpackPosition, 0.025);
         ImGui::DragFloat("Backpack scale", &programState->backpackScale, 0.025, -100.0, 100.0);
 
         ImGui::DragFloat("pointLight.constant", &programState->pointLight.constant, 0.05, 0.0, 1.0);
