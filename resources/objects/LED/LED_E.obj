@@ -1,6 +1,6 @@
 # Blender 3.5.0
 # www.blender.org
-mtllib LED.mtl
+mtllib LED_E.mtl
 g Null.2_Null.2
 v -0.030584 1.391787 -0.454649
 v 0.069404 1.391787 -0.453078

@@ -45,6 +45,8 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+bool bHdr = true;
+
 struct PointLight {
     glm::vec3 position;
     glm::vec3 ambient;
@@ -192,6 +194,8 @@ int main() {
     Shader ourShader("resources/shaders/model_lighting.vs", "resources/shaders/model_lighting.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
     Shader blendingShader("resources/shaders/blendShader.vs", "resources/shaders/blendShader.fs");
+    Shader hdrShader("resources/shaders/hdr.vs", "resources/shaders/hdr.fs");
+
     // skybox vertices
     stbi_set_flip_vertically_on_load(false);
 
@@ -240,6 +244,16 @@ int main() {
             1.0f, -1.0f,  1.0f,
     };
 
+    float quadVertices[] = {
+            // positions        // texture Coords
+            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+            1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+            1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+    };
+
+
+
     float grassVertices[] = {
             // positions         // texture Coords
             0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
@@ -252,6 +266,42 @@ int main() {
     };
 
     glEnable(GL_MULTISAMPLE);
+
+    unsigned int hdrFBO;
+    glGenFramebuffers(1, &hdrFBO);
+    // create floating point color buffer
+    unsigned int colorBuffer;
+    glGenTextures(1, &colorBuffer);
+    glBindTexture(GL_TEXTURE_2D, colorBuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // create depth buffer (renderbuffer)
+    unsigned int rboDepth;
+    glGenRenderbuffers(1, &rboDepth);
+    glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
+    // attach buffers
+    glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorBuffer, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "Framebuffer not complete!" << std::endl;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+    unsigned int quadVAO, quadVBO;
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+    glBindVertexArray(quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    //skybox init
 
     unsigned int skyboxVAO, skyboxVBO;
     glGenVertexArrays(1, &skyboxVAO);
@@ -385,7 +435,8 @@ int main() {
 
         // render
         // ------
-        glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
+        //glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
+        glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         blendingShader.use();
@@ -438,7 +489,7 @@ int main() {
 
         // don't forget to enable shader before setting uniforms
         // pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
-
+        ourShader.setFloat("material.shininess", 32.0f);
         ourShader.setVec3("rotPointLight.position", 9.1f, -0.22f, 14.0f);
         ourShader.setVec3("rotPointLight.direction", glm::vec3(0.0f, 0.0f, 1.0f));
         ourShader.setVec3("rotPointLight.ambient", 0.1f, 0.1f, 0.1f);
@@ -485,7 +536,6 @@ int main() {
         ourShader.setVec3("dirLight.ambient", 0.01f, 0.01f, 0.01f);
         ourShader.setVec3("dirLight.diffuse", 0.2f, 0.2f, 0.2f);
         ourShader.setVec3("dirLight.specular", 0.3f, 0.3f, 0.3f);
-        ourShader.setFloat("material.shininess", 32.0f);
 
 
         SpotLight spotLight1;
@@ -515,6 +565,27 @@ int main() {
         ourShader.setFloat("spotLight2.quadratic", 0.032);
         ourShader.setFloat("spotLight2.cutOff", glm::cos(glm::radians(19.875f)));
         ourShader.setFloat("spotLight2.outerCutOff", glm::cos(glm::radians(21.0f)));
+
+        // 10 -1 12.6
+        // 8.8 -1 12.6
+
+        ourShader.setVec3("pointLight3.position", 10.5f, -1.0f, 12.6f);
+        ourShader.setVec3("pointLight3.ambient", glm::vec3(0.1f));
+        ourShader.setVec3("pointLight3.diffuse", glm::vec3(0.73f, 0.1176f, 0.0627f));
+        ourShader.setVec3("pointLight3.specular", glm::vec3(0.73f, 0.1176f, 0.0627f));
+        ourShader.setFloat("pointLight3.constant", 0.3f);
+        ourShader.setFloat("pointLight3.linear", 0.85f);
+        ourShader.setFloat("pointLight3.quadratic", 0.032f);
+        ourShader.setVec3("viewPosition", programState->camera.Position);
+
+        ourShader.setVec3("pointLight4.position", 8.8f, -1.0f, 12.6f);
+        ourShader.setVec3("pointLight4.ambient", glm::vec3(0.1f));
+        ourShader.setVec3("pointLight4.diffuse", glm::vec3(0.73f, 0.1176f, 0.0627f));
+        ourShader.setVec3("pointLight4.specular", glm::vec3(0.73f, 0.1176f, 0.0627f));
+        ourShader.setFloat("pointLight4.constant", 0.3f);
+        ourShader.setFloat("pointLight4.linear", 0.85f);
+        ourShader.setFloat("pointLight4.quadratic", 0.032f);
+        ourShader.setVec3("viewPosition", programState->camera.Position);
 
         // render the loaded model
         model = glm::mat4(1.0f);
@@ -623,6 +694,18 @@ int main() {
         //glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
 
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        hdrShader.use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, colorBuffer);
+        hdrShader.setInt("hdr", bHdr);
+        hdrShader.setFloat("exposure", programState->backpackScale);
+        glBindVertexArray(quadVAO);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glBindVertexArray(0);
+
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
 
@@ -668,6 +751,14 @@ void processInput(GLFWwindow *window) {
         programState->camera.ProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
         programState->camera.ProcessKeyboard(DOWN, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS){
+        if(bHdr){
+            bHdr = false;
+        }
+        else{
+            bHdr = true;
+        }
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
