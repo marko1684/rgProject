@@ -5,7 +5,7 @@
 Project is farm-land scene, with small field of sunflowers and tractors next to it, there are few animals and a small shed.
 Project is made using OpenGL with C++, GLAD and GLFW.
 
-[Video] (https://youtu.be/0pBEQ5B2joY)
+[Video](https://youtu.be/0pBEQ5B2joY)
 
 ![Alt text](img.png?raw=true "Showcase")
 
