@@ -650,7 +650,7 @@ int main() {
 
         std::vector<glm::vec3> cowPositions = {
                 glm::vec3(-12.0f, -3.56f, 8.1f),
-                glm::vec3(-22.0f, -3.7f, 12.0f)
+                glm::vec3(-22.0f, -3.58f, 12.0f)
         };
 
         for(int i = 0; i < cowPositions.size(); i++){
@@ -697,7 +697,7 @@ int main() {
             }
             zOfSunflowerRow -= 2.5f;
         }
-        
+
         glDepthFunc(GL_LEQUAL);
         skyboxShader.use();
         skyboxShader.setInt("skybox", 0);
