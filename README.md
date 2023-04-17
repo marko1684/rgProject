@@ -21,14 +21,16 @@ Project contains:
 * Materials
 * Lighting maps
 * Multiple lights
-* Anti-aliasing
-* CubeMaps
+* FPS counter
 * Face culling
 * Blending
 * Imgui
+### Grupa A
+* CubeMaps
+* Anti-aliasing
+### Grupa B
 * HDR
 * Bloom
-* FPS counter
 
 
 ## Controls
