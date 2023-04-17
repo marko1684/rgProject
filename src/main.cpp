@@ -332,7 +332,7 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-
+    glBindVertexArray(0);
     //skybox init
 
     unsigned int skyboxVAO, skyboxVBO;
@@ -343,6 +343,7 @@ int main() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+    glBindVertexArray(0);
 
     unsigned int grassVAO, grassVBO;
     glGenVertexArrays(1, &grassVAO);
@@ -356,7 +357,7 @@ int main() {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glBindVertexArray(0);
 
-    unsigned int grassTexture = loadTexture(FileSystem::getPath("resources/textures/grass/grass-min.png").c_str());
+    unsigned int grassTexture = loadTexture(FileSystem::getPath("resources/textures/grass/grass.png").c_str());
 
     // load sky block textures
     std::vector<std::string> faces{
@@ -373,7 +374,7 @@ int main() {
     // load models
     // -----------
 
-    Model fieldModel("resources/objects/field/polje.obj");
+    Model fieldModel("resources/objects/field/model.obj");
     fieldModel.SetShaderTextureNamePrefix("material.");
 
     Model tractorModel("resources/objects/tractor/Tractor_with_hydraulic_lifter_retopo2_SF.obj");
@@ -465,14 +466,21 @@ int main() {
         // -----
         processInput(window);
 
+        blendingShader.use();
+        blendingShader.setInt("texture1", 0);
+
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = programState->camera.GetViewMatrix();
+
+
 
         // render
         // ------
         glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        blendingShader.use();
-        blendingShader.setInt("texture1", 0);
+
         PointLight rotPointLight;
 
         ourShader.setVec3("pointLight.position", 9.1f, 0.0f, 14.0f);
@@ -488,30 +496,9 @@ int main() {
         blendingShader.setVec3("dirLight.ambient", 0.01f, 0.01f, 0.01f);
         blendingShader.setVec3("dirLight.diffuse", 0.2f, 0.2f, 0.2f);
         blendingShader.setVec3("dirLight.specular", 0.3f, 0.3f, 0.3f);
-        
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = programState->camera.GetViewMatrix();
-        blendingShader.setMat4("projection", projection);
-        blendingShader.setMat4("view", view);
-        glBindVertexArray(grassVAO);
-        glBindTexture(GL_TEXTURE_2D, grassTexture);
 
-        for (auto i : grassPositions)
-        {
-            float grassAngle = 0.0f;
-            for(int j = 0; j < 6; j++) {
-                model = glm::mat4(1.0f);
-                model = glm::translate(model, i);
-                model = glm::rotate(model, glm::radians(grassAngle), glm::vec3(0.0f, 1.0f, 0.0f));
-                model = glm::translate(model, glm::vec3(-0.5f, 0.0f, 0.0f));
-                blendingShader.setMat4("model", model);
-                glDrawArrays(GL_TRIANGLES, 0, 6);
-                grassAngle += 30.0f;
-            }
-        }
-        glBindVertexArray(0);
         glEnable(GL_CULL_FACE);
+
 
         ourShader.use();
         ourShader.setMat4("projection", projection);
@@ -550,8 +537,8 @@ int main() {
         ourShader.setVec3("pointLight1.ambient", pointLight.ambient);
         ourShader.setVec3("pointLight1.diffuse", pointLight.diffuse);
         ourShader.setVec3("pointLight1.specular", pointLight.specular);
-        ourShader.setFloat("pointLight1.constant", 0.45f);
-        ourShader.setFloat("pointLight1.linear", 0.85f);
+        ourShader.setFloat("pointLight1.constant", 0.05f);
+        ourShader.setFloat("pointLight1.linear", 0.1f);
         ourShader.setFloat("pointLight1.quadratic", 0.032f);
         ourShader.setVec3("viewPosition", programState->camera.Position);
 
@@ -559,8 +546,8 @@ int main() {
         ourShader.setVec3("pointLight2.ambient", pointLight.ambient);
         ourShader.setVec3("pointLight2.diffuse", pointLight.diffuse);
         ourShader.setVec3("pointLight2.specular", pointLight.specular);
-        ourShader.setFloat("pointLight2.constant", 0.45f);
-        ourShader.setFloat("pointLight2.linear", 0.85f);
+        ourShader.setFloat("pointLight2.constant", 0.05f);
+        ourShader.setFloat("pointLight2.linear", 0.1f);
         ourShader.setFloat("pointLight2.quadratic", 0.032f);
         ourShader.setVec3("viewPosition", programState->camera.Position);
 
@@ -617,12 +604,6 @@ int main() {
         ourShader.setFloat("pointLight4.quadratic", 0.032f);
         ourShader.setVec3("viewPosition", programState->camera.Position);
 
-//        model = glm::mat4(1.0f);
-//        model = glm::translate(model, glm::vec3(programState->backpackPosition));
-//        model = glm::scale(model, glm::vec3(0.01f));
-//        ourShader.setMat4("model", model);
-//        lanternModel.Draw(ourShader);
-
         // render the loaded model
         model = glm::mat4(1.0f);
         model = glm::translate(model,glm::vec3(0.0f,0.0f,0.0f)); // translate it down so it's at the center of the scene
@@ -657,6 +638,8 @@ int main() {
         model = glm::translate(model, glm::vec3(9.1f, -0.42f, 14.0f));
         model = glm::rotate(model, glm::radians(float(rotAngle)), glm::vec3(0.0f, 1.0f, 0.0f));
         rotAngle += 15.0f;
+        if(rotAngle >= 18000)
+            rotAngle = 0;
         model = glm::scale(model, glm::vec3(0.1f));
         ourShader.setMat4("model", model);
         ledModel.Draw(ourShader);
@@ -756,16 +739,40 @@ int main() {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        bloomShader.use();
-        glActiveTexture(GL_TEXTURE0);
 
+        glActiveTexture(GL_TEXTURE0);
+        bloomShader.use();
         glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
-        bloomShader.setInt("bloom", true);
-        bloomShader.setFloat("exposure", 0.1f);
+        bloomShader.setInt("bloom", bHdr);
+        bloomShader.setFloat("exposure", 0.08f);
         glBindVertexArray(quadVAO);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glBindVertexArray(0);
+
+
+        model = glm::mat4(1.0f);
+        projection = glm::perspective(glm::radians(programState->camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        view = programState->camera.GetViewMatrix();
+        blendingShader.setMat4("projection", projection);
+        blendingShader.setMat4("view", view);
+        glBindVertexArray(grassVAO);
+        glBindTexture(GL_TEXTURE_2D, grassTexture);
+        glDisable(GL_CULL_FACE);
+        for (auto i : grassPositions)
+        {
+            float grassAngle = 0.0f;
+            for(int j = 0; j < 6; j++) {
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, i);
+                model = glm::rotate(model, glm::radians(grassAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+                model = glm::translate(model, glm::vec3(-0.5f, 0.0f, 0.0f));
+                blendingShader.setMat4("model", model);
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+                grassAngle += 30.0f;
+            }
+        }
         glBindVertexArray(0);
 
 
@@ -778,7 +785,7 @@ int main() {
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
-        glDisable(GL_CULL_FACE);
+        glEnable(GL_CULL_FACE);
     }
 
     programState->SaveToFile("resources/program_state.txt");
