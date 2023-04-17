@@ -1,11 +1,45 @@
-# project_base
-Prazan projekat sa pratećim bibliotekama koje koristimo na času. 
-
 # Uputstvo
-1. `git clone https://github.com/matf-racunarska-grafika/project_base.git`
-2. CLion -> Open -> path/to/my/project_base
-3. Main se nalazi u src/main.cpp
-4. Cpp fajlovi idu u src folder
-5. Zaglavlja (h i hpp) fajlovi idu u include
-6. Šejderi idu u folder shaders. `Vertex shader` ima ekstenziju `.vs`, `fragment shader` ima ekstenziju `.fs`
-7. ALT+SHIFT+F10 -> project_base -> run
+1. `git clone https://github.com/marko1684/rgProject.git`
+2. `run`
+
+Project is farm-land scene, with small field of sunflowers and tractors next to it, there are few animals and a small shed.
+Project is made using OpenGL with C++, GLAD and GLFW.
+
+[Video] (https://youtu.be/0pBEQ5B2joY)
+
+![Alt text](img.png?raw=true "Showcase")
+
+Project contains:
+
+* Shaders
+* Transformations
+* Camera
+* Colors
+* Textures
+* Models
+* Lighting
+* Materials
+* Lighting maps
+* Multiple lights
+* Anti-aliasing
+* CubeMaps
+* Face culling
+* Blending
+* Imgui
+* HDR
+* Bloom
+* FPS counter
+
+
+## Controls
+- camera movements
+
+`W`  - Move forward\
+`S`  - Move backward \
+`A`  - Move left \
+`D`  - Move right 
+
+`SPACE`  - Move camera up \
+`X`  - Move camera down \
+`MOUSE`  - Look around \
+`SCROLL`  - Zoom
